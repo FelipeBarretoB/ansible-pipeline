@@ -6,6 +6,11 @@
     - name: Actualizar cache de paquetes
       apt:
         update_cache: yes
+    
+    - name: Install OpenJDK 17
+      apt:
+        name: openjdk-17-jre
+        state: present
 
     - name: Instalar Nginx
       apt:
@@ -103,6 +108,16 @@
       become_user: "{{ ansible_user }}"
       become_method: su
 
+    - name: Pasar plugins.txt del local a la maquina virtual de azure
+      copy:
+        src: plugins.txt  # Local file
+        dest: /tmp/plugins.txt  # Destination in the VM
+
+    
+    - name: Pasar plugins.txt al Jenkins
+      command: docker cp /tmp/plugins.txt jenkins:/plugins.txt
+
+    # no idea de donde sale este sapo archivo
     - name: Instalar plugins jenkins
       command: docker exec -it jenkins jenkins-plugin-cli --plugin-file /plugins.txt
       become_user: "{{ ansible_user }}"
